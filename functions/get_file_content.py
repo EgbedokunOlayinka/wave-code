@@ -1,5 +1,7 @@
 import os
 
+from google.genai import types
+
 FILE_TEXT_LIMIT = 10000
 
 
@@ -37,3 +39,18 @@ def get_file_content(working_directory, file_path):
 
 
 # get_file_content("calculator", "main.py")
+
+schema_get_file_content = types.FunctionDeclaration(
+    name="get_file_content",
+    description="Reads the contents of a file and returns it from the function",
+    parameters=types.Schema(
+        type=types.Type.OBJECT,
+        properties={
+            "file_path": types.Schema(
+                type=types.Type.STRING,
+                description="Path to the file to be read, relative to the working directory (default is the working directory itself)",
+            ),
+        },
+        required=["file_path"],
+    ),
+)

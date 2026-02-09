@@ -5,14 +5,21 @@ from dotenv import load_dotenv
 from google import genai
 from google.genai import types
 
+from call_function import available_functions
+from prompts import system_prompt
+
 
 def main():
     try:
         load_dotenv()
         api_key = os.environ.get("GEMINI_API_KEY")
+        model_name = os.environ.get("MODEL_NAME")
 
         if api_key is None:
             raise RuntimeError("api key not found!")
+
+        if model_name is None:
+            raise RuntimeError("invalid model provided!")
 
         client = genai.Client(api_key=api_key)
 
@@ -28,8 +35,11 @@ def main():
         ]
 
         response = client.models.generate_content(
-            model="gemini-2.5-flash",
+            model=model_name,
             contents=messages,
+            config=types.GenerateContentConfig(
+                tools=[available_functions], system_instruction=system_prompt
+            ),
         )
 
         if response.usage_metadata is None:
@@ -40,7 +50,11 @@ def main():
             print(f"Prompt tokens: {response.usage_metadata.prompt_token_count}")
             print(f"Response tokens: {response.usage_metadata.candidates_token_count}")
 
-        print(response.text)
+        if response.function_calls is not None:
+            for fn_call in response.function_calls:
+                print(f"Calling function: {fn_call.name}({fn_call.args})")
+        else:
+            print(response.text)
 
     except RuntimeError as err:
         print(f"An error occurred: {err}")
