@@ -23,10 +23,7 @@ function_map = {
 
 
 def call_function(function_call, verbose=False):
-    if verbose:
-        print(f"Calling function: {function_call.name}({function_call.args})")
-    else:
-        print(f" - Calling function: {function_call.name}")
+    print(f"Calling function: {function_call.name}({function_call.args})")
 
     function_name = function_call.name or ""
 
